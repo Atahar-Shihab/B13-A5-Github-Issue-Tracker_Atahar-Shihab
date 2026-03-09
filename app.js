@@ -129,3 +129,116 @@ tabBtns.forEach(btn => {
         }
     });
 });
+
+
+
+
+searchInput.addEventListener('keypress', async (e) => {
+    if (e.key === 'Enter') {
+        const query = searchInput.value.trim();
+        if (!query) {
+            renderIssues(allIssuesData); 
+            return;
+        }
+
+        loader.classList.remove('hidden');
+        issuesGrid.classList.add('hidden');
+
+        try {
+            const response = await fetch(`https://phi-lab-server.vercel.app/api/v1/lab/issues/search?q=${query}`);
+            const result = await response.json();
+            const actualSearchArray = result && result.data ? result.data : [];
+            renderIssues(actualSearchArray);
+        } catch (error) {
+            console.error("Search error:", error);
+            issuesGrid.innerHTML = `<p class="text-red-500 col-span-4 text-center py-10">Search failed.</p>`;
+        } finally {
+            loader.classList.add('hidden');
+            issuesGrid.classList.remove('hidden');
+        }
+    }
+});
+
+
+async function openModal(id) {
+    if (!id) return;
+    issueModal.classList.remove('hidden');
+
+    modalContent.innerHTML = `
+        <div class="flex justify-center items-center py-20">
+            <div class="animate-spin rounded-full h-8 w-8 border-4 border-gray-200 border-t-[#4F46E5]"></div>
+        </div>
+    `;
+
+    try {
+        const response = await fetch(`https://phi-lab-server.vercel.app/api/v1/lab/issue/${id}`);
+        const result = await response.json();
+
+
+        const issue = result.data;
+
+      
+        if (!issue) {
+            modalContent.innerHTML = `<p class="text-red-500 py-10 text-center">Issue data not found.</p>`;
+            return;
+        }
+
+        const isStatusOpen = issue.status && issue.status.toLowerCase() === 'open';
+        const statusBgColor = isStatusOpen ? 'bg-[#219653]' : 'bg-[#8000FF]';
+        
+
+        modalContent.innerHTML = `
+            <div class="bg-white">
+                <h2 class="text-2xl font-bold text-gray-800 mb-4 leading-tight">${issue.title || "Untitled Issue"}</h2>
+                
+                <div class="flex flex-wrap items-center gap-2.5 text-xs text-gray-500 mb-6 font-medium">
+                    <span class="${statusBgColor} text-white px-3 py-1 rounded-full font-semibold capitalize">${issue.status || "Unknown"}</span>
+                    <span>•</span>
+                    <span>Opened by <span class="font-semibold text-gray-800">${issue.author || "Unknown"}</span></span>
+                    <span>•</span>
+                    <span>${formatDate(issue.createdAt)}</span>
+                </div>
+
+                <div class="flex gap-2.5 mb-8">
+                     ${issue.labels ? issue.labels.map(label => getLabelHTML(label)).join('') : ''}
+                </div>
+                
+                <p class="text-gray-600 text-[13px] mb-10 leading-relaxed font-normal">${issue.description || "This issue has no description."}</p>
+                
+                <div class="bg-gray-50 p-6 rounded-xl flex gap-32 text-sm mb-6 border border-gray-100">
+                    <div>
+                        <p class="text-gray-500 mb-1.5 font-medium">Assignee:</p>
+                        <p class="font-bold text-gray-900">${issue.assignee || 'Unassigned'}</p>
+                    </div>
+                    <div>
+                        <p class="text-gray-500 mb-1.5 font-medium">Priority:</p>
+                        <span class="text-[10px] font-bold px-3.5 py-1.5 rounded-full ${issue.priority?.toLowerCase() === 'high' ? 'bg-[#EB5757] text-white' : 'bg-gray-200 text-gray-700'} uppercase tracking-wide">${issue.priority || 'Normal'}</span>
+                    </div>
+                </div>
+                
+                <div class="flex justify-end pt-4">
+                    <button id="closeModalBtn" class="bg-[#4F46E5] text-white px-8 py-2.5 rounded-md font-bold text-sm hover:bg-[#3d36b8] transition">Close</button>
+                </div>
+            </div>
+        `;
+
+       
+        document.getElementById('closeModalBtn').addEventListener('click', () => {
+            issueModal.classList.add('hidden');
+        });
+
+    } catch (error) {
+        console.error("Fetch single issue error:", error);
+        modalContent.innerHTML = `<p class="text-red-500 py-10 text-center font-medium">Failed to load issue details.</p>`;
+    }
+}
+
+
+issueModal.addEventListener('click', (e) => {
+    if (e.target === issueModal) {
+        issueModal.classList.add('hidden');
+    }
+});
+
+
+fetchIssues();
