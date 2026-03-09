@@ -69,3 +69,63 @@ function formatDate(dateString) {
     
     return `${day}/${month}/${year}`;
 }
+
+
+
+function renderIssues(issues) {
+    issuesGrid.innerHTML = ''; 
+    issueCount.innerText = issues.length; 
+
+    issues.forEach(issue => {
+        if (!issue) return;
+        const isStatusOpen = issue.status && issue.status.toLowerCase() === 'open';
+        
+
+        const borderTopColor = isStatusOpen ? 'border-t-[#219653]' : 'border-t-[#8000FF]';
+        const statusIcon = isStatusOpen ? 'assets/Open-Status.png' : 'assets/Closed-Status.png';
+        
+        const cardHTML = `
+            <div class="bg-white p-5 rounded-xl border border-gray-200 border-t-4 ${borderTopColor} cursor-pointer hover:shadow-lg transition duration-200 flex flex-col h-full" onclick="openModal(${issue.id})">
+                
+                <div class="flex justify-between items-start mb-4">
+                    <img src="${statusIcon}" alt="${issue.status}" class="w-5 h-5">
+                    ${getPriorityHTML(issue.priority)}
+                </div>
+
+                <h3 class="font-bold text-sm text-gray-800 mb-2 line-clamp-2 leading-snug">${issue.title || "Untitled Issue"}</h3>
+                <p class="text-xs text-gray-500 mb-4 line-clamp-2 leading-relaxed">${issue.description || "No description provided."}</p>
+                
+                <div class="flex flex-wrap gap-2 mb-6">
+                    ${issue.labels ? issue.labels.map(label => getLabelHTML(label)).join('') : ''}
+                </div>
+                
+                <div class="text-[11px] text-gray-400 mt-auto border-t border-gray-100 pt-3 flex justify-between">
+                    <span>#${issue.id} by ${issue.author}</span>
+                    <span>${formatDate(issue.createdAt)}</span>
+                </div>
+            </div>
+        `;
+        issuesGrid.innerHTML += cardHTML;
+    });
+}
+
+
+tabBtns.forEach(btn => {
+    btn.addEventListener('click', (e) => {
+        tabBtns.forEach(b => {
+            b.classList.remove('bg-[#4F46E5]', 'text-white');
+            b.classList.add('text-gray-600', 'hover:bg-gray-100', 'bg-transparent');
+        });
+        
+        e.target.classList.add('bg-[#4F46E5]', 'text-white');
+        e.target.classList.remove('text-gray-600', 'hover:bg-gray-100', 'bg-transparent');
+
+        const filterType = e.target.getAttribute('data-filter');
+        if (filterType === 'All') {
+            renderIssues(allIssuesData);
+        } else {
+            const filteredData = allIssuesData.filter(issue => issue.status && issue.status.toLowerCase() === filterType.toLowerCase());
+            renderIssues(filteredData);
+        }
+    });
+});
