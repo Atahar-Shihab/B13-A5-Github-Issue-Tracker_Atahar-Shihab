@@ -14,7 +14,7 @@ async function fetchIssues() {
         const response = await fetch('https://phi-lab-server.vercel.app/api/v1/lab/issues');
         const result = await response.json();
         
-        
+
         const actualIssuesArray = result && result.data ? result.data : [];
         allIssuesData = actualIssuesArray; 
         renderIssues(allIssuesData); 
@@ -62,14 +62,13 @@ function formatDate(dateString) {
     const date = new Date(dateString);
     if (isNaN(date.getTime())) return "Invalid Date";
     
-    
+
     const day = date.getDate().toString().padStart(2, '0');
     const month = (date.getMonth() + 1).toString().padStart(2, '0');
     const year = date.getFullYear();
     
     return `${day}/${month}/${year}`;
 }
-
 
 
 function renderIssues(issues) {
@@ -80,7 +79,7 @@ function renderIssues(issues) {
         if (!issue) return;
         const isStatusOpen = issue.status && issue.status.toLowerCase() === 'open';
         
-
+    
         const borderTopColor = isStatusOpen ? 'border-t-[#219653]' : 'border-t-[#8000FF]';
         const statusIcon = isStatusOpen ? 'assets/Open-Status.png' : 'assets/Closed-Status.png';
         
@@ -131,8 +130,6 @@ tabBtns.forEach(btn => {
 });
 
 
-
-
 searchInput.addEventListener('keypress', async (e) => {
     if (e.key === 'Enter') {
         const query = searchInput.value.trim();
@@ -174,10 +171,9 @@ async function openModal(id) {
         const response = await fetch(`https://phi-lab-server.vercel.app/api/v1/lab/issue/${id}`);
         const result = await response.json();
 
-
+   
         const issue = result.data;
 
-      
         if (!issue) {
             modalContent.innerHTML = `<p class="text-red-500 py-10 text-center">Issue data not found.</p>`;
             return;
@@ -186,7 +182,7 @@ async function openModal(id) {
         const isStatusOpen = issue.status && issue.status.toLowerCase() === 'open';
         const statusBgColor = isStatusOpen ? 'bg-[#219653]' : 'bg-[#8000FF]';
         
-
+  
         modalContent.innerHTML = `
             <div class="bg-white">
                 <h2 class="text-2xl font-bold text-gray-800 mb-4 leading-tight">${issue.title || "Untitled Issue"}</h2>
@@ -222,7 +218,7 @@ async function openModal(id) {
             </div>
         `;
 
-       
+   
         document.getElementById('closeModalBtn').addEventListener('click', () => {
             issueModal.classList.add('hidden');
         });

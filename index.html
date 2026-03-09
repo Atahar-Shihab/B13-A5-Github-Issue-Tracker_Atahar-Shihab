@@ -48,13 +48,12 @@
     </div>
 
     <script>
-        
+      
         document.getElementById('loginBtn').addEventListener('click', function() {
             const user = document.getElementById('username').value;
             const pass = document.getElementById('password').value;
             const error = document.getElementById('errorMsg');
 
-            
             if(user === 'admin' && pass === 'admin123') {
                 window.location.href = 'dashboard.html'; 
             } else {

@@ -60,6 +60,8 @@
 
 - Load all issues and display as per Figma
 
+
+
 - On clicking on an open or closed tab, it will load the issues data of the related tab and show it in a display-like card in a 4-column layout like Figma. By default, it will show all data 
 
 - Each card shows:
